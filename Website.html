@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Service Catalog - Premium SaaS</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Brand Icons & Services -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Lucide Icons for UI controls -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* * GLOBAL RESET & VARIABLES */
+        :root {
+            /* Default Theme (Updated to Orange) */
+            --bg-gradient-start: #7c2d12;
+            --bg-gradient-mid: #c2410c;
+            --bg-gradient-end: #ea580c;
+            
+            /* Premium Glass Tokens */
+            --glass-bg: rgba(255, 255, 255, 0.15); /* Slightly more opaque for premium feel */
+            --glass-border: rgba(255, 255, 255, 0.18); /* Softer border */
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); /* Deeper, softer shadow */
+            --glass-radius: 24px; /* More rounded corners */
+            --glass-blur: 30px; /* Heavy blur */
+            
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.85);
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --spacing-sm: 12px;
+            --spacing-md: 20px;
+            --spacing-lg: 32px;
+            --active-indicator: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            /* Re-enabled transitions for smoother interactions requested in redesign */
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+        }
+
+        /* Prevent transition on page load elements if needed, but smooth hover is key now */
+
+        /* --- SEARCH INPUT FIXES --- */
+        input {
+            color: var(--text-primary) !important;
+        }
+        
+        ::placeholder {
+            color: var(--text-muted) !important;
+            opacity: 1;
+        }
+
+        .logo-box {
+            width: 44px; 
+            height: 44px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .logo-box img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .col-service i {
+            width: 24px;
+            height: 24px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 14px;
+            color: var(--text-primary);
+            opacity: 0.95;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-mid), var(--bg-gradient-end));
+            color: var(--text-primary);
+            /* Complex background overlay for depth */
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(255,255,255,0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(255,255,255,0.1) 0px, transparent 50%),
+                linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-mid), var(--bg-gradient-end));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-md);
+            transition: background 0.6s ease-in-out !important;
+        }
+
+        .root-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            gap: 24px; /* Increased gap for cleaner layout */
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--glass-radius);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .sidebar {
+            width: 280px; /* Slightly wider sidebar */
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 0 24px 16px;
+            height: 100%; 
+            position: relative; 
+        }
+
+        .sidebar-scroll-content {
+            overflow-y: auto;
+            flex-grow: 1; 
+            padding-right: 16px; 
+            width: 100%;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px; /* Tighter items */
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px; /* Soft rounding */
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            border: 1px solid transparent; /* Prevent jump on hover */
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            transform: translateX(4px); /* Micro-interaction */
+        }
+
+        .sidebar-item.active {
+            /* UPDATED: Dynamic background matching the selected theme */
+            background: linear-gradient(90deg, var(--bg-gradient-mid), var(--bg-gradient-start));
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text-primary);
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .sidebar-item i, .sidebar-item svg {
+            width: 20px;
+            height: 20px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .theme-options {
+            display: flex;
+            gap: 8px; /* Slightly tighter gap to fit more */
+            align-items: center;
+            flex-wrap: wrap; /* Allow wrapping for many colors */
+            max-width: 70%; /* Prevent taking up full footer */
+            justify-content: flex-end;
+        }
+
+        .theme-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.3);
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            flex-shrink: 0; /* Prevent squishing */
+        }
+
+        .theme-circle:hover {
+            transform: scale(1.2);
+            border-color: var(--text-primary); /* Adapt border on hover */
+        }
+
+        .theme-circle.active {
+            border-color: var(--text-primary); /* Adapt active border */
+            transform: scale(1.1);
+            box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent); /* Faded edges */
+            margin: 20px 0;
+        }
+
+        /* --- UPDATED SIDEBAR HEADERS --- */
+        .sidebar-header {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-primary); /* Fixed: Was #ffffff */
+            margin-top: 24px; /* Reduced from 28 to balance */
+            margin-bottom: 8px; /* Reduced from 10 to keep tight with items */
+            padding: 12px 16px; /* Block padding */
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.1); /* Visible container block */
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* Subtle lift */
+            backdrop-filter: blur(4px);
+        }
+
+        /* --- INDENTATION FIX --- */
+        /* Indent items that follow a header to create proper hierarchy */
+        .sidebar-header + .sidebar-menu .sidebar-item {
+            padding-left: 24px; /* Increased from 16px to 24px for indentation */
+        }
+        
+        /* Ensure the hover state still looks full-width and premium */
+        .sidebar-header + .sidebar-menu .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .view-section {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; 
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .header {
+            padding: 24px 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.02); /* Very subtle tint */
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-subtitle {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-left: 60px; /* Align with text */
+            font-weight: 400;
+        }
+
+        .table-container {
+            flex-grow: 1;
+            padding: 16px 32px 32px 32px;
+            overflow-y: auto;
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            /* Card-like rows redesign */
+            border-collapse: separate; 
+            border-spacing: 0 8px; 
+            font-size: 14px;
+        }
+        
+        /* Row Redesign: Card Style */
+        tbody tr {
+            /* UPDATED: Ultra-subtle background for better blending */
+            background: rgba(0, 0, 0, 0.05); 
+            border: 1px solid rgba(255, 255, 255, 0.05); /* Very faint border */
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            box-shadow: none; /* Removed shadow for flatter look unless hovered */
+        }
+        
+        /* Rounded corners for rows */
+        tbody tr td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        tbody tr td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+        tbody tr:hover {
+            /* On hover, brighten slightly to indicate interactivity */
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px) scale(1.001);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Indentation for child rows */
+        .child-row .col-service {
+            padding-left: 36px; 
+            position: relative;
+        }
+        
+        .child-row .col-service::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            width: 12px;
+            height: 2px; /* Thicker line */
+            background: rgba(255,255,255,0.4);
+            border-radius: 2px;
+        }
+        
+        .child-row .col-service::after {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: -50%;
+            width: 2px;
+            height: 100%;
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* SECTION HEADER ROW STYLE - UPDATED FOR DISTINCTION */
+        .section-header-row td {
+            background: rgba(255, 255, 255, 0.15); /* Brighter background */
+            color: var(--text-primary); /* Fixed: Was #ffffff */
+            font-weight: 800; /* Bolder font */
+            font-size: 14px; /* Slightly larger */
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            pointer-events: none; /* Not clickable */
+            margin-top: 16px; /* More spacing above */
+            border-left: 4px solid var(--text-primary); /* Fixed: Was rgba white */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+            /* Ensure it stands out from rows */
+            backdrop-filter: blur(10px); 
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background: rgba(10, 42, 106, 0.0); /* Transparent, will be handled by backdrop */
+            /* Using a pseudo-element for the blur header to allow border-spacing to flow under */
+            z-index: 10;
+        }
+        
+        /* Custom Header Background */
+        thead::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10, 42, 106, 0.85); /* Fallback */
+            backdrop-filter: blur(20px);
+            z-index: -1;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; /* Soft header */
+        }
+
+        thead th {
+            text-align: left;
+            padding: 16px 20px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* HEADER SEARCH BOX STYLES */
+        .th-search-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            width: auto;
+        }
+        
+        .th-search-box {
+            display: flex;
+            align-items: center;
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .th-search-box i.search-icon {
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        
+        .th-search-box:hover i.search-icon,
+        .th-search-box:focus-within i.search-icon {
+            opacity: 1;
+            color: var(--text-primary); /* Fixed: Was white */
+        }
+
+        .th-search-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            outline: none;
+            width: 0;
+            padding: 0;
+            opacity: 0;
+            margin-left: 0;
+            font-size: 13px;
+            color: var(--text-primary); /* Fixed: Was white */
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            padding-right: 20px; 
+        }
+        
+        .th-search-box:hover .th-search-input,
+        .th-search-box:focus-within .th-search-input,
+        .th-search-input.has-value {
+            width: 160px;
+            opacity: 1;
+            margin-left: 10px;
+            padding-bottom: 4px;
+            border-bottom-color: var(--text-secondary); /* Fixed: Was white rgba */
+        }
+
+        /* FIXED CLEAR BUTTON STYLES */
+        .clear-btn-wrapper {
+            position: absolute;
+            right: 0; 
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px; 
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        
+        .search-container .clear-btn-wrapper {
+            right: 12px;
+        }
+
+        .clear-btn-wrapper.show {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        
+        .clear-btn-wrapper svg {
+            width: 16px;
+            height: 16px;
+            color: var(--text-muted); /* Fixed: Was rgba white */
+        }
+        
+        .clear-btn-wrapper:hover svg {
+            color: var(--text-primary); /* Fixed: Was white */
+            background: rgba(255,255,255,0.25);
+            border-radius: 50%;
+        }
+
+        tbody td {
+            padding: 16px 20px;
+            color: var(--text-secondary);
+            /* border-bottom removed in favor of card separation */
+            border-bottom: none;
+            vertical-align: middle;
+        }
+
+        .col-service {
+            color: var(--text-primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            font-size: 15px; /* Slightly larger text */
+        }
+        
+        /* Pill Tags */
+        .tag {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px; /* Full pill */
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.15); /* Increased opacity for visibility */
+            border: 1px solid rgba(255, 255, 255, 0.25); /* Stronger border */
+            color: var(--text-primary);
+            margin-right: 6px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            backdrop-filter: blur(4px);
+        }
+        
+        .action-cell {
+            text-align: center; /* Changed from right to center */
+            white-space: nowrap;
+        }
+
+        .action-container {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Changed from flex-end to center */
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-primary); /* Fixed: Was white */
+            width: 36px; /* Larger hit area */
+            height: 36px;
+            border-radius: 50%; /* Circular buttons */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+        
+        .action-btn.like:hover {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            border-color: #4ade80;
+        }
+        
+        .action-btn.dislike:hover {
+            background: rgba(248, 113, 113, 0.2);
+            color: #f87171;
+            border-color: #f87171;
+        }
+        
+        /* New Share Button Style */
+        .action-btn.share:hover {
+            background: rgba(56, 189, 248, 0.2); /* Sky blue tint */
+            color: #38bdf8;
+            border-color: #38bdf8;
+        }
+        
+        .date-cell {
+            text-align: center; /* Changed from right to center */
+            line-height: 1.3;
+        }
+        
+        .date-month {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+        
+        .date-year {
+            font-size: 11px;
+            color: var(--text-muted);
+            opacity: 0.8;
+        }
+
+        .footer {
+            margin-top: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.2); /* Darker footer */
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Utility classes for alignment */
+        .text-center { text-align: center !important; }
+        .text-left { text-align: left !important; }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- HOME VIEW STYLES (REDESIGNED) --- */
+        .home-layout {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            /* 1. Full-width Hero Background */
+            background-image: url('https://raw.githubusercontent.com/sabs-27/images/main/PandaHD.png');
+            background-size: cover;
+            background-position: center left; /* Focus on panda on the left */
+            background-repeat: no-repeat;
+            justify-content: space-between; /* Space between text top and cards bottom */
+            padding: 40px;
+        }
+
+        /* 2. Middle Layer: Subtle Overlay for Readability */
+        .home-layout::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            /* Gradient to darken the right side for text, leave left bright for panda */
+            background: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.7) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Text Overlay Area */
+        .hero-text-overlay {
+            position: relative;
+            z-index: 2; /* Middle Layer */
+            align-self: flex-end; /* Align to the right */
+            text-align: right;
+            max-width: 500px;
+            margin-top: 60px; /* Push down slightly */
+            margin-right: 20px;
+        }
+
+        .intro-title {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: #ffffff;
+            letter-spacing: -1px;
+            /* Subtle shadow for readability against image */
+            text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .intro-text {
+            font-size: 18px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 24px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            font-weight: 400;
+        }
+
+        .intro-bullets {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-end; /* Align bullets right */
+        }
+
+        .bullet-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            color: #ffffff;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            flex-direction: row-reverse; /* Icon on right for right-aligned layout */
+        }
+
+        .bullet-item i {
+            width: 20px;
+            height: 20px;
+            color: #4ade80; /* Bright green check */
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        /* --- FEATURE GRID (Bottom Layer) --- */
+        .features-grid {
+            position: relative;
+            z-index: 3; /* Top Layer */
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto; /* Center horizontally */
+            margin-bottom: 20px;
+        }
+
+        .feature-card {
+            /* Heavy Glassmorphism with THEME TINT */
+            /* Using variable for background to match theme */
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), var(--bg-gradient-mid));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            cursor: pointer;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-card:hover {
+            /* Brighten slightly on hover, keeping theme tint */
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), var(--bg-gradient-start));
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px 0 rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.2); /* Darker backing for icon contrast */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 24px;
+            color: #ffffff;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+            /* UPDATED: Icon background subtle tint */
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .feature-card:hover .feature-icon {
+             background: rgba(255, 255, 255, 0.2);
+             color: #ffffff;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .feature-desc {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.4;
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="root-container">
+        
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-scroll-content">
+                <ul class="sidebar-menu">
+                    <!-- Updated to switch to home view -->
+                    <li class="sidebar-item active" id="nav-home" onclick="switchProvider('home')">
+                        <i data-lucide="home"></i>
+                        Console Home
+                    </li>
+                    <li class="sidebar-item search-container" style="padding: 0;">
+                        <div style="display: flex; align-items: center; width: 100%; padding: 12px 16px; position: relative;">
+                            <i data-lucide="search"></i>
+                            <input type="text" id="service-search" placeholder="Search Services" 
+                                   style="background: transparent; border: none; outline: none; margin-left: 12px; width: 100%; font-family: inherit; font-size: 14px; padding-right: 20px;">
+                            <!-- FIXED CLEAR BUTTON WRAPPER -->
+                            <div id="clear-service-search" class="clear-btn-wrapper">
+                                <i data-lucide="x"></i>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="divider"></div>
+
+                <!-- ROLE BASED CATEGORY -->
+                <div class="sidebar-header">Role Based</div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item">
+                        <i data-lucide="bot"></i>
+                        AI and Data Scientist
+                    </li>
+                    <li class="sidebar-item">
+                        <i data-lucide="database-zap"></i>
+                        Data Engineer
+                    </li>
+                    <li class="sidebar-item">
+                        <i data-lucide="bar-chart-3"></i>
+                        Data Analyst
+                    </li>
+                    <li class="sidebar-item">
+                        <i data-lucide="infinity"></i>
+                        DevOps
+                    </li>
+                    <li class="sidebar-item">
+                        <i class="fa-brands fa-android"></i>
+                        Android
+                    </li>
+                    <li class="sidebar-item">
+                        <i data-lucide="server"></i>
+                        Backend
+                    </li>
+                </ul>
+
+                <!-- SKILL BASED CATEGORY -->
+                <div class="sidebar-header">Skill Based</div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item" id="nav-aws" onclick="switchProvider('aws')">
+                        <i class="fa-brands fa-aws"></i>
+                        AWS Services
+                    </li>
+                    <li class="sidebar-item" id="nav-gcp" onclick="switchProvider('gcp')">
+                        <i class="fa-brands fa-google"></i>
+                        Google Cloud
+                    </li>
+                    <li class="sidebar-item">
+                        <i class="fa-brands fa-linux"></i>
+                        Linux
+                    </li>
+                    <li class="sidebar-item">
+                        <i class="fa-brands fa-docker"></i>
+                        Docker
+                    </li>
+                    <li class="sidebar-item">
+                        <i data-lucide="box"></i>
+                        Kubernetes
+                    </li>
+                    <li class="sidebar-item">
+                        <i class="fa-brands fa-node-js"></i>
+                        Node.js
+                    </li>
+                    <li class="sidebar-item">
+                        <i class="fa-brands fa-python"></i>
+                        Python
+                    </li>
+                    <li class="sidebar-item">
+                        <i data-lucide="binary"></i>
+                        Computer Science
+                    </li>
+                    <li class="sidebar-item" id="nav-sql" onclick="switchProvider('sql')">
+                        <i class="fa-solid fa-database"></i>
+                        SQL
+                    </li>
+                    <li class="sidebar-item">
+                        <i class="fa-brands fa-html5"></i>
+                        HTML
+                    </li>
+                    <li class="sidebar-item">
+                        <i class="fa-brands fa-github"></i>
+                        Git and GitHub
+                    </li>
+                    <li class="sidebar-item">
+                        <i class="fa-solid fa-server"></i>
+                        PostgreSQL
+                    </li>
+                    <li class="sidebar-item">
+                        <i class="fa-brands fa-golang"></i>
+                        Go
+                    </li>
+                    <li class="sidebar-item">
+                        <i class="fa-brands fa-laravel"></i>
+                        Laravel
+                    </li>
+                    <li class="sidebar-item">
+                        <i data-lucide="terminal-square"></i>
+                        Shell / Bash
+                    </li>
+                    <li class="sidebar-item">
+                        <i class="fa-brands fa-cloudflare"></i>
+                        Cloudflare
+                    </li>
+                    <li class="sidebar-item">
+                        <i data-lucide="brain-circuit"></i>
+                        Machine Learning
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content glass-panel">
+            
+            <!-- NEW HOME VIEW (Redesigned) -->
+            <div id="view-home" class="view-section">
+                <div class="home-layout">
+                    
+                    <!-- Text Overlay (Middle Layer) -->
+                    <div class="hero-text-overlay">
+                        <h1 class="intro-title">Welcome 👋</h1>
+                        
+                        <p class="intro-text">
+                            This is an interactive learning platform designed to make complex technical topics easier to understand through focused simulations that explain how systems work, why they behave the way they do, and how different choices affect outcomes.
+                        </p>
+                        
+                        <p class="intro-text">
+                            Content spans domains like AWS, Linux, and SQL, organized from fundamentals to deeper concepts. Learn one idea at a time, explore freely, and move at your own pace.
+                        </p>
+
+                        <div class="intro-footer" style="border-top: 1px solid rgba(255,255,255,0.2); margin-top: 24px; padding-top: 24px;">
+                            <p class="intro-note" style="color: rgba(255, 255, 255, 0.9); font-style: normal; font-size: 14px; line-height: 1.5;">
+                                This is a solo-built project and not a replacement for textbooks or official documentation—use it to build clarity, then go deeper with books and docs.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Features Grid (Top Layer) -->
+                    <div class="features-grid">
+                        <div class="feature-card" onclick="switchProvider('aws')">
+                            <div class="feature-icon"><i class="fa-brands fa-aws"></i></div>
+                            <h3 class="feature-title">AWS Cloud</h3>
+                            <p class="feature-desc">Master EC2, S3, IAM, and cloud fundamentals with interactive guides.</p>
+                        </div>
+                        <div class="feature-card" onclick="switchProvider('gcp')">
+                            <div class="feature-icon"><i class="fa-brands fa-google"></i></div>
+                            <h3 class="feature-title">Google Cloud</h3>
+                            <p class="feature-desc">Explore Compute Engine, BigQuery, and scalable infrastructure.</p>
+                        </div>
+                        <div class="feature-card" onclick="switchProvider('sql')">
+                            <div class="feature-icon"><i class="fa-solid fa-database"></i></div>
+                            <h3 class="feature-title">SQL Mastery</h3>
+                            <p class="feature-desc">From basic SELECT queries to advanced joins and optimization.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fa-brands fa-linux"></i></div>
+                            <h3 class="feature-title">Linux Ops</h3>
+                            <p class="feature-desc">Essential shell commands, permissions, and system administration.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AWS VIEW (Hidden by default now) -->
+            <div id="view-aws" class="view-section hidden">
+                <header class="header">
+                    <div class="header-top">
+                        <div class="logo-box">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS Logo">
+                        </div> 
+                        <h1 class="header-title">AWS Service Catalog</h1>
+                    </div>
+                    <div class="header-subtitle">Explore Solutions, Categories, Compute, Storage, Database and more</div>
+                </header>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="5%">ID</th>
+                                <th width="25%">
+                                    <div class="th-search-container">
+                                        <span>Topic Name</span>
+                                        <div class="th-search-box">
+                                            <i data-lucide="search" width="14" height="14" class="search-icon"></i>
+                                            <input type="text" id="topic-search-aws" class="th-search-input" placeholder="Filter...">
+                                            <!-- FIXED CLEAR BUTTON WRAPPER -->
+                                            <div id="clear-topic-aws" class="clear-btn-wrapper">
+                                                <i data-lucide="x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th width="8%" class="text-center">Type</th>
+                                <th width="25%">Core Concepts</th>
+                                <th width="7%" class="text-center">Share</th>
+                                <th width="10%" class="text-center">Views</th>
+                                <th width="10%" class="text-center">Actions</th>
+                                <th width="10%" class="text-center">Date Added</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- GOGGLE CLOUD VIEW (Hidden by default) -->
+            <div id="view-gcp" class="view-section hidden">
+                <header class="header">
+                    <div class="header-top">
+                        <div class="logo-box">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg" alt="GCP Logo">
+                        </div> 
+                        <h1 class="header-title">Google Cloud Catalog</h1>
+                    </div>
+                    <div class="header-subtitle">Explore Services, Compute Engine, BigQuery, Storage and more</div>
+                </header>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="5%">ID</th>
+                                <th width="25%">
+                                    <div class="th-search-container">
+                                        <span>Topic Name</span>
+                                        <div class="th-search-box">
+                                            <i data-lucide="search" width="14" height="14" class="search-icon"></i>
+                                            <input type="text" id="topic-search-gcp" class="th-search-input" placeholder="Filter...">
+                                            <!-- FIXED CLEAR BUTTON WRAPPER -->
+                                            <div id="clear-topic-gcp" class="clear-btn-wrapper">
+                                                <i data-lucide="x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th width="8%" class="text-center">Type</th>
+                                <th width="25%">Core Concepts</th>
+                                <th width="7%" class="text-center">Share</th>
+                                <th width="10%" class="text-center">Views</th>
+                                <th width="10%" class="text-center">Actions</th>
+                                <th width="10%" class="text-center">Date Added</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Row 1: Compute Engine -->
+                            <tr>
+                                <td style="color: var(--text-muted)">01</td>
+                                <td>
+                                    <div class="col-service">
+                                        <i class="fa-solid fa-microchip"></i>
+                                        Compute Engine
+                                    </div>
+                                </td>
+                                <td class="text-center"><i class="fa-solid fa-folder" style="color: #fbbf24;"></i></td>
+                                <td><span class="tag">MIGs</span><span class="tag">Load Balancer</span></td>
+                                <td class="text-center">
+                                    <button class="action-btn share" title="Share"><i data-lucide="share-2" width="14"></i></button>
+                                </td>
+                                <td class="text-center">-</td>
+                                <td class="action-cell">
+                                    <div class="action-container">
+                                        <button class="action-btn like"><i data-lucide="thumbs-up" width="14"></i></button>
+                                        <button class="action-btn dislike"><i data-lucide="thumbs-down" width="14"></i></button>
+                                    </div>
+                                </td>
+                                <td class="date-cell">
+                                    <div class="date-month">OCT</div>
+                                    <div class="date-year">2023</div>
+                                </td>
+                            </tr>
+                            <!-- (Other GCP Rows Omitted for Brevity - Keeping Structure Identical) -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SQL VIEW (New) -->
+            <div id="view-sql" class="view-section hidden">
+                <header class="header">
+                    <div class="header-top">
+                        <div class="logo-box">
+                            <i class="fa-solid fa-database" style="font-size: 24px; color: white;"></i>
+                        </div> 
+                        <h1 class="header-title">SQL Learning Path</h1>
+                    </div>
+                    <div class="header-subtitle">Master SQL from basics to advanced optimization and security</div>
+                </header>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="5%">ID</th>
+                                <th width="25%">
+                                    <div class="th-search-container">
+                                        <span>Topic Name</span>
+                                        <div class="th-search-box">
+                                            <i data-lucide="search" width="14" height="14" class="search-icon"></i>
+                                            <input type="text" id="topic-search-sql" class="th-search-input" placeholder="Filter...">
+                                            <!-- FIXED CLEAR BUTTON WRAPPER -->
+                                            <div id="clear-topic-sql" class="clear-btn-wrapper">
+                                                <i data-lucide="x"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th width="8%" class="text-center">Type</th>
+                                <th width="25%">Core Concepts</th>
+                                <th width="7%" class="text-center">Share</th>
+                                <th width="10%" class="text-center">Views</th>
+                                <th width="10%" class="text-center">Actions</th>
+                                <th width="10%" class="text-center">Date Added</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SHARED FOOTER -->
+            <footer class="footer">
+                <span>Course Contents: 10</span>
+                
+                <!-- THEME SELECTOR MOVED HERE -->
+                <div class="theme-options">
+                    <!-- 1. Orange (Now Default & First) -->
+                    <div class="theme-circle active" data-theme="orange" title="Orange" style="background: linear-gradient(135deg, #7c2d12, #ea580c);" onclick="handleThemeClick('#7c2d12', '#c2410c', '#ea580c', this)"></div>
+                    <!-- 2. Blue (Moved) -->
+                    <div class="theme-circle" data-theme="blue" title="Blue" style="background: linear-gradient(135deg, #0a2a6a, #0a66d9);" onclick="handleThemeClick('#0a2a6a', '#0b4db8', '#0a66d9', this)"></div>
+                    <!-- 3. Green -->
+                    <div class="theme-circle" data-theme="green" title="Green" style="background: linear-gradient(135deg, #064e3b, #10b981);" onclick="handleThemeClick('#064e3b', '#047857', '#10b981', this)"></div>
+                    <!-- 4. Sky Blue -->
+                    <div class="theme-circle" data-theme="sky" title="Sky Blue" style="background: linear-gradient(135deg, #075985, #38bdf8);" onclick="handleThemeClick('#075985', '#0ea5e9', '#38bdf8', this)"></div>
+                    <!-- 5. Crimson -->
+                    <div class="theme-circle" data-theme="crimson" title="Crimson" style="background: linear-gradient(135deg, #7f1d1d, #ef4444);" onclick="handleThemeClick('#7f1d1d', '#b91c1c', '#ef4444', this)"></div>
+                    <!-- 6. Purple -->
+                    <div class="theme-circle" data-theme="purple" title="Purple" style="background: linear-gradient(135deg, #2e1065, #7c3aed);" onclick="handleThemeClick('#2e1065', '#5b21b6', '#7c3aed', this)"></div>
+                    
+                    <!-- 7. Panda (Monochrome) -->
+                    <div class="theme-circle" data-theme="panda" title="Panda" style="background: linear-gradient(135deg, #000000, #3f3f46);" onclick="handleThemeClick('#000000', '#27272a', '#3f3f46', this)"></div>
+                </div>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- Initialize Lucide Icons -->
+    <script>
+        lucide.createIcons();
+
+        // Theme Definitions mapping for persistence
+        const themes = {
+            'blue': { start: '#0a2a6a', mid: '#0b4db8', end: '#0a66d9' },
+            'green': { start: '#064e3b', mid: '#047857', end: '#10b981' },
+            'sky': { start: '#075985', mid: '#0ea5e9', end: '#38bdf8' },
+            'orange': { start: '#7c2d12', mid: '#c2410c', end: '#ea580c' },
+            'crimson': { start: '#7f1d1d', mid: '#b91c1c', end: '#ef4444' },
+            'purple': { start: '#2e1065', mid: '#5b21b6', end: '#7c3aed' },
+            'panda': { start: '#000000', mid: '#27272a', end: '#3f3f46' }
+        };
+
+        // Core Function to Apply Theme Variables
+        function applyTheme(start, mid, end) {
+            document.documentElement.style.setProperty('--bg-gradient-start', start);
+            document.documentElement.style.setProperty('--bg-gradient-mid', mid);
+            document.documentElement.style.setProperty('--bg-gradient-end', end);
+            
+            // Ensure text and glass variables are reset to dark mode defaults (since we removed light mode)
+            document.documentElement.style.setProperty('--text-primary', '#ffffff');
+            document.documentElement.style.setProperty('--text-secondary', 'rgba(255, 255, 255, 0.85)');
+            document.documentElement.style.setProperty('--text-muted', 'rgba(255, 255, 255, 0.6)');
+            document.documentElement.style.setProperty('--glass-bg', 'rgba(255, 255, 255, 0.15)');
+            document.documentElement.style.setProperty('--glass-border', 'rgba(255, 255, 255, 0.18)');
+            document.documentElement.style.setProperty('--glass-shadow', '0 8px 32px 0 rgba(0, 0, 0, 0.3)');
+            document.documentElement.style.setProperty('--active-indicator', '#ffffff');
+        }
+
+        // Wrapper for Click Handler
+        function handleThemeClick(start, mid, end, el) {
+            applyTheme(start, mid, end);
+            
+            // Update Active UI
+            document.querySelectorAll('.theme-circle').forEach(circle => {
+                circle.classList.remove('active');
+            });
+            el.classList.add('active');
+
+            // Save preference
+            const themeId = el.getAttribute('data-theme');
+            if (themeId) {
+                localStorage.setItem('cloud-catalog-theme', themeId);
+            }
+        }
+
+        // Navigation Logic
+        function switchProvider(provider) {
+            const homeView = document.getElementById('view-home');
+            const awsView = document.getElementById('view-aws');
+            const gcpView = document.getElementById('view-gcp');
+            const sqlView = document.getElementById('view-sql');
+            
+            const navHome = document.getElementById('nav-home');
+            const navAws = document.getElementById('nav-aws');
+            const navGcp = document.getElementById('nav-gcp');
+            const navSql = document.getElementById('nav-sql');
+            
+            const footerCounter = document.querySelector('.footer span');
+
+            document.querySelectorAll('.sidebar-item').forEach(item => item.classList.remove('active'));
+
+            // Reset views
+            homeView.classList.add('hidden');
+            awsView.classList.add('hidden');
+            gcpView.classList.add('hidden');
+            sqlView.classList.add('hidden');
+
+            if (provider === 'home') {
+                homeView.classList.remove('hidden');
+                if (navHome) navHome.classList.add('active');
+                footerCounter.textContent = 'Welcome Home';
+            } else if (provider === 'aws') {
+                awsView.classList.remove('hidden');
+                document.getElementById('nav-aws').classList.add('active');
+                // Count AWS items dynamically now that it's structured
+                const awsItems = document.querySelectorAll('#view-aws tbody tr:not(.section-header-row)').length;
+                footerCounter.textContent = `Course Contents: ${awsItems}`; 
+            } else if (provider === 'gcp') {
+                gcpView.classList.remove('hidden');
+                document.getElementById('nav-gcp').classList.add('active');
+                footerCounter.textContent = 'Course Contents: 10'; 
+            } else if (provider === 'sql') {
+                sqlView.classList.remove('hidden');
+                document.getElementById('nav-sql').classList.add('active');
+                const sqlItems = document.querySelectorAll('#view-sql tbody tr:not(.section-header-row)').length;
+                footerCounter.textContent = `Course Contents: ${sqlItems}`;
+            }
+        }
+
+        // Script to populate services
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- RESTORE THEME (Robust Method) ---
+            const savedThemeId = localStorage.getItem('cloud-catalog-theme');
+            if (savedThemeId && themes[savedThemeId]) {
+                const t = themes[savedThemeId];
+                applyTheme(t.start, t.mid, t.end);
+                
+                // Update UI State
+                document.querySelectorAll('.theme-circle').forEach(circle => {
+                    circle.classList.remove('active');
+                    if (circle.getAttribute('data-theme') === savedThemeId) {
+                        circle.classList.add('active');
+                    }
+                });
+            }
+
+            const footerCounter = document.querySelector('.footer span');
+            const sidebarSearchInput = document.getElementById('service-search');
+            // const clearSidebarBtn = document.getElementById('clear-service-search'); // Removed unused const
+
+            // Set initial footer text for Home view
+            if(footerCounter) {
+                footerCounter.textContent = 'Welcome Home';
+            }
+
+            // --- NEW: Clear Button Logic (Robust Fix) ---
+            const setupClearButton = (inputId, btnId) => {
+                const input = document.getElementById(inputId);
+                const btnWrapper = document.getElementById(btnId);
+                
+                if (!input || !btnWrapper) return;
+
+                const toggleState = () => {
+                    if (input.value.length > 0) {
+                        btnWrapper.classList.add('show');
+                        input.classList.add('has-value'); 
+                    } else {
+                        btnWrapper.classList.remove('show');
+                        input.classList.remove('has-value');
+                    }
+                };
+
+                input.addEventListener('input', toggleState);
+                input.addEventListener('focus', toggleState);
+
+                btnWrapper.addEventListener('click', (e) => {
+                    e.preventDefault(); 
+                    e.stopPropagation(); 
+                    input.value = '';
+                    toggleState();
+                    input.dispatchEvent(new Event('input'));
+                });
+            };
+
+            // Initialize clears
+            setupClearButton('service-search', 'clear-service-search');
+            setupClearButton('topic-search-aws', 'clear-topic-aws');
+            setupClearButton('topic-search-gcp', 'clear-topic-gcp');
+            setupClearButton('topic-search-sql', 'clear-topic-sql');
+
+            // --- 1. FIXED SIDEBAR SEARCH ---
+            if (sidebarSearchInput) {
+                sidebarSearchInput.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase().trim();
+                    const sidebarItems = document.querySelectorAll('.sidebar-item');
+                    
+                    sidebarItems.forEach(item => {
+                        // Skip the search box itself
+                        if (item.classList.contains('search-container')) return;
+                        
+                        const text = item.textContent.toLowerCase();
+                        // Use default display (flex) if matches, otherwise none
+                        item.style.display = text.includes(searchTerm) ? 'flex' : 'none';
+                    });
+
+                    // Logic to hide empty section headers
+                    document.querySelectorAll('.sidebar-header').forEach(header => {
+                        const menu = header.nextElementSibling;
+                        if (menu && menu.classList.contains('sidebar-menu')) {
+                            // Check if any child item is visible
+                            const hasVisibleItems = Array.from(menu.children).some(child => {
+                                return !child.classList.contains('search-container') && child.style.display !== 'none';
+                            });
+                            header.style.display = hasVisibleItems ? '' : 'none';
+                        }
+                    });
+                });
+            }
+
+            // --- 2. FIXED TABLE SEARCH ---
+            const setupTopicSearch = (inputId, tableBodySelector) => {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.addEventListener('input', (e) => {
+                        const searchTerm = e.target.value.toLowerCase().trim();
+                        // 1. Get all PARENT rows (exclude section headers and child rows)
+                        const parentRows = document.querySelectorAll(`${tableBodySelector} tr:not(.child-row):not(.section-header-row)`);
+                        let visibleCount = 0;
+
+                        parentRows.forEach(row => {
+                            const topicDiv = row.querySelector('.col-service');
+                            const text = topicDiv ? topicDiv.textContent.toLowerCase() : '';
+                            const rowId = row.getAttribute('data-id');
+                            const childRows = document.querySelectorAll(`${tableBodySelector} tr[data-parent-id="${rowId}"]`);
+
+                            if (text.includes(searchTerm)) {
+                                // Match found
+                                row.style.display = ''; 
+                                visibleCount++;
+                                
+                                // Note: We do NOT auto-expand children on search, 
+                                // but we must ensure if the parent was hidden previously, we don't accidentally show children
+                                // unless they were already open. 
+                                // Simplest approach: Keep children hidden unless user opens folder.
+                                // If you want to search inside children, that's more complex.
+                                // For now, searching matches PARENT names.
+                            } else {
+                                // No match
+                                row.style.display = 'none';
+                                // Force children hidden if parent is hidden
+                                childRows.forEach(child => child.style.display = 'none');
+                            }
+                        });
+
+                        // 2. Handle Section Headers Visibility
+                        const allRows = document.querySelectorAll(`${tableBodySelector} tr`);
+                        let currentHeader = null;
+                        let sectionHasVisibleRows = false;
+
+                        // Iterate all to manage headers based on visible children
+                        // Reset visibility flags
+                        allRows.forEach(row => {
+                            if (row.classList.contains('section-header-row')) {
+                                // If we finished a previous section, check if we should have shown it
+                                if (currentHeader) {
+                                    currentHeader.style.display = sectionHasVisibleRows ? '' : 'none';
+                                }
+                                // Start new section
+                                currentHeader = row;
+                                sectionHasVisibleRows = false; 
+                                
+                                // Special case: If the header ITSELF matches search?
+                                if (row.textContent.toLowerCase().includes(searchTerm)) {
+                                    sectionHasVisibleRows = true; // Force show this section
+                                    // Optionally show all children? Let's stick to showing the header + matching children
+                                }
+                            } else {
+                                // It's a content row. Is it visible?
+                                if (row.style.display !== 'none') {
+                                    sectionHasVisibleRows = true;
+                                }
+                            }
+                        });
+                        // Check last section
+                        if (currentHeader) {
+                            currentHeader.style.display = sectionHasVisibleRows ? '' : 'none';
+                        }
+                        
+                        // Update Footer Counter
+                        const isVisible = !input.closest('.view-section').classList.contains('hidden');
+                        if (isVisible && footerCounter) {
+                            footerCounter.textContent = `Course Contents: ${visibleCount}`;
+                        }
+                    });
+                }
+            };
+
+            // Re-bind properly
+            setupTopicSearch('topic-search-aws', '#view-aws tbody');
+            setupTopicSearch('topic-search-gcp', '#view-gcp tbody');
+            setupTopicSearch('topic-search-sql', '#view-sql tbody');
+            
+            // --- SMART ICON DETECTOR (ENHANCED) ---
+            const getRelevantIcon = (name, parentContext) => {
+                const text = (name + ' ' + parentContext).toLowerCase();
+                
+                // Specific Mappings for AWS
+                if (text.includes('region') || text.includes('availability zone')) return 'fa-earth-americas';
+                if (text.includes('responsibility')) return 'fa-handshake-simple';
+                if (text.includes('architecture') || text.includes('design')) return 'fa-compass-drafting';
+                if (text.includes('identity-based')) return 'fa-address-card';
+                if (text.includes('resource-based')) return 'fa-file-shield';
+                if (text.includes('policy evaluation')) return 'fa-scale-balanced';
+                if (text.includes('instance families')) return 'fa-layer-group';
+                if (text.includes('cpu credit')) return 'fa-stopwatch';
+                if (text.includes('ssh key')) return 'fa-key';
+                if (text.includes('elastic ip')) return 'fa-wifi';
+                if (text.includes('startup scripts') || text.includes('user data')) return 'fa-terminal';
+                if (text.includes('pricing') || text.includes('purchase')) return 'fa-money-check-dollar';
+                if (text.includes('cidr') || text.includes('ip address')) return 'fa-network-wired';
+                if (text.includes('subnet')) return 'fa-border-all';
+                if (text.includes('public vs private')) return 'fa-unlock-keyhole';
+                if (text.includes('routing') || text.includes('route table')) return 'fa-route';
+                if (text.includes('security group') || text.includes('nacl')) return 'fa-shield-halved';
+                if (text.includes('internet') || text.includes('gateway')) return 'fa-door-open';
+                if (text.includes('storage class')) return 'fa-boxes-stacked';
+                if (text.includes('lifecycle')) return 'fa-recycle';
+                if (text.includes('replication')) return 'fa-copy';
+                if (text.includes('rds engine')) return 'fa-gears';
+                if (text.includes('failover') || text.includes('high availability')) return 'fa-heart-pulse';
+                if (text.includes('backup') || text.includes('snapshot')) return 'fa-camera';
+                if (text.includes('partition key') || text.includes('sort key')) return 'fa-key';
+                if (text.includes('secondary index')) return 'fa-list-check';
+                if (text.includes('throughput') || text.includes('capacity')) return 'fa-gauge-high';
+                if (text.includes('stream')) return 'fa-water';
+                if (text.includes('hosted zone')) return 'fa-book-atlas';
+                if (text.includes('health')) return 'fa-stethoscope';
+                if (text.includes('metric') || text.includes('alarm')) return 'fa-bell';
+                if (text.includes('log')) return 'fa-file-lines';
+                if (text.includes('cache policy')) return 'fa-stopwatch';
+                if (text.includes('invalidation')) return 'fa-ban';
+                if (text.includes('redis')) return 'fa-layer-group';
+                if (text.includes('sandbox')) return 'fa-bucket';
+                if (text.includes('dkim') || text.includes('verification')) return 'fa-certificate';
+                if (text.includes('ami') || text.includes('machine image')) return 'fa-compact-disc';
+                if (text.includes('launch template')) return 'fa-rocket';
+                if (text.includes('fargate')) return 'fa-box-open';
+                if (text.includes('task definition')) return 'fa-clipboard-list';
+                if (text.includes('cluster')) return 'fa-cubes';
+                if (text.includes('repo')) return 'fa-warehouse';
+                if (text.includes('scanning')) return 'fa-magnifying-glass-chart';
+                
+                // Specific Mappings for SQL
+                if (text.includes('benefit') || text.includes('limitation')) return 'fa-thumbs-up-down';
+                if (text.includes('oltp') || text.includes('olap')) return 'fa-chart-pie';
+                if (text.includes('alias')) return 'fa-tag';
+                if (text.includes('limit') || text.includes('offset')) return 'fa-arrow-down-short-wide';
+                if (text.includes('comment')) return 'fa-comment-dots';
+                if (text.includes('logical operator')) return 'fa-code-branch';
+                if (text.includes('comparison')) return 'fa-scale-unbalanced';
+                if (text.includes('min') || text.includes('max')) return 'fa-arrow-down-up-across-line';
+                if (text.includes('group')) return 'fa-object-group';
+                if (text.includes('create database')) return 'fa-folder-plus';
+                if (text.includes('drop')) return 'fa-trash-can';
+                if (text.includes('naming')) return 'fa-font';
+                if (text.includes('composite key')) return 'fa-key';
+                if (text.includes('cascading')) return 'fa-stairs';
+                if (text.includes('self join')) return 'fa-arrow-rotate-right';
+                if (text.includes('cross join')) return 'fa-xmark';
+                if (text.includes('scalar')) return 'fa-1';
+                if (text.includes('correlated')) return 'fa-link';
+                if (text.includes('exists')) return 'fa-circle-check';
+                if (text.includes('pattern')) return 'fa-wand-magic-sparkles';
+                if (text.includes('formatting')) return 'fa-text-slash';
+                if (text.includes('numeric')) return 'fa-calculator';
+                if (text.includes('time zone')) return 'fa-globe';
+                if (text.includes('arithmetic')) return 'fa-plus-minus';
+                if (text.includes('btree') || text.includes('hash')) return 'fa-tree';
+                if (text.includes('trade-off')) return 'fa-scale-balanced';
+                if (text.includes('isolation level')) return 'fa-vault';
+                if (text.includes('deadlock')) return 'fa-skull';
+                if (text.includes('injection')) return 'fa-syringe';
+                if (text.includes('role-based')) return 'fa-id-card-clip';
+                if (text.includes('window function')) return 'fa-table-columns';
+                if (text.includes('rank') || text.includes('dense_rank')) return 'fa-trophy';
+                if (text.includes('lead') || text.includes('lag')) return 'fa-forward-fast';
+                if (text.includes('cte')) return 'fa-table-list';
+                if (text.includes('recursive')) return 'fa-arrow-rotate-left';
+                if (text.includes('pivot')) return 'fa-table-cells';
+                if (text.includes('dynamic')) return 'fa-bolt';
+                if (text.includes('parameter')) return 'fa-sliders';
+                if (text.includes('error handling')) return 'fa-triangle-exclamation';
+                if (text.includes('analysis')) return 'fa-microscope';
+                if (text.includes('execution plan')) return 'fa-project-diagram';
+
+                // Fallbacks from previous logic if specific string not found
+                if (text.includes('database') || text.includes('sql') || text.includes('rds') || text.includes('dynamo')) return 'fa-database';
+                if (text.includes('security') || text.includes('iam') || text.includes('policy') || text.includes('role') || text.includes('permission') || text.includes('access')) return 'fa-user-shield';
+                if (text.includes('network') || text.includes('vpc') || text.includes('ip') || text.includes('route') || text.includes('gateway') || text.includes('subnet')) return 'fa-network-wired';
+                if (text.includes('compute') || text.includes('ec2') || text.includes('instance') || text.includes('cpu') || text.includes('vm')) return 'fa-server';
+                if (text.includes('storage') || text.includes('s3') || text.includes('volume') || text.includes('ebs') || text.includes('efs') || text.includes('bucket')) return 'fa-hard-drive';
+                if (text.includes('container') || text.includes('docker') || text.includes('ecs') || text.includes('eks') || text.includes('kubernetes') || text.includes('cluster')) return 'fa-docker';
+                if (text.includes('lambda') || text.includes('serverless') || text.includes('function')) return 'fa-bolt';
+                if (text.includes('monitor') || text.includes('watch') || text.includes('metric') || text.includes('log') || text.includes('alarm')) return 'fa-chart-line';
+                if (text.includes('cost') || text.includes('price') || text.includes('billing') || text.includes('saving')) return 'fa-tag';
+                if (text.includes('cache') || text.includes('redis') || text.includes('memcached')) return 'fa-memory';
+                if (text.includes('email') || text.includes('ses') || text.includes('message')) return 'fa-envelope';
+                if (text.includes('load bal') || text.includes('scaling') || text.includes('elb')) return 'fa-scale-balanced';
+                if (text.includes('dns') || text.includes('domain') || text.includes('route 53') || text.includes('hosted')) return 'fa-globe';
+                if (text.includes('code') || text.includes('git') || text.includes('repo')) return 'fa-code';
+                if (text.includes('api') || text.includes('integrate')) return 'fa-plug';
+                if (text.includes('linux') || text.includes('ssh') || text.includes('terminal')) return 'fa-terminal';
+                if (text.includes('key') || text.includes('encrypt')) return 'fa-key';
+                if (text.includes('transaction') || text.includes('acid')) return 'fa-money-bill-transfer';
+                if (text.includes('view')) return 'fa-eye';
+                if (text.includes('index')) return 'fa-list-ol';
+                if (text.includes('join')) return 'fa-handshake';
+                
+                return 'fa-file-lines';
+            };
+
+            // --- AWS POPULATION (Updated with specific catalog) ---
+            const awsTableBody = document.querySelector('#view-aws tbody');
+            
+            // New AWS Data Structure based on request
+            const awsData = [
+                {
+                    title: "Cloud Foundations",
+                    items: [
+                        { name: "Understanding Cloud Computing", type: "file", icon: "fa-cloud", concepts: "Scalability, On-Demand" },
+                        { name: "Service Models Explained (IaaS, PaaS, SaaS)", type: "file", icon: "fa-layer-group", concepts: "Responsibility, Control" },
+                        { name: "Cloud Deployment Types (Public / Private / Hybrid)", type: "file", icon: "fa-network-wired", concepts: "Deployment, Infrastructure" },
+                        { 
+                            name: "AWS Fundamentals", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["Getting Started with AWS", "AWS Regions & Availability Zones", "Responsibility Sharing Model", "AWS Architecture Best Practices"] 
+                        }
+                    ]
+                },
+                {
+                    title: "Identity & Access Control",
+                    items: [
+                        { name: "Introduction to IAM", type: "file", icon: "fa-user-shield", concepts: "AuthN, AuthZ" },
+                        { name: "Users & Groups Explained", type: "file", icon: "fa-users", concepts: "Organization, Permissions" },
+                        { name: "Roles and Temporary Access", type: "file", icon: "fa-id-card", concepts: "Security, Least Privilege" },
+                        { 
+                            name: "Access Policies", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["Identity-Based Policies", "Resource-Based Policies", "Policy Evaluation Logic"] 
+                        },
+                        { name: "Security Best Practices for IAM", type: "file", icon: "fa-lock", concepts: "MFA, Rotation" }
+                    ]
+                },
+                {
+                    title: "Compute Services",
+                    items: [
+                        { name: "Elastic Compute Overview", type: "file", icon: "fa-server", concepts: "Virtualization, EC2" },
+                        { 
+                            name: "EC2 Deep Dive", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["Instance Families & Sizing", "CPU Credit System", "Block Storage Options", "SSH Key Management", "Elastic IP Addressing", "Startup Scripts (User Data)", "Pricing & Purchase Models"] 
+                        }
+                    ]
+                },
+                {
+                    title: "Virtual Networking",
+                    items: [
+                        { name: "VPC Concepts Explained", type: "file", icon: "fa-network-wired", concepts: "Isolation, Subnets" },
+                        { 
+                            name: "Network Design in AWS", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["IP Address Ranges (CIDR)", "Subnet Design Strategy", "Public vs Private Networking", "Routing & Route Tables", "Network Security Groups", "Internet & NAT Gateways"] 
+                        }
+                    ]
+                },
+                {
+                    title: "Object & File Storage",
+                    items: [
+                        { name: "Amazon S3 Overview", type: "file", icon: "fa-box-archive", concepts: "Buckets, Objects" },
+                        { 
+                            name: "S3 Internals", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["Buckets and Objects", "Storage Classes Explained", "Lifecycle Automation", "Data Protection & Permissions"] 
+                        },
+                        { name: "Amazon EBS vs EFS", type: "file", icon: "fa-hard-drive", concepts: "Block vs File" }
+                    ]
+                },
+                {
+                    title: "Databases",
+                    items: [
+                        { name: "Managed Databases on AWS", type: "file", icon: "fa-database", concepts: "RDS, DynamoDB" },
+                        { 
+                            name: "Relational Databases", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["RDS Engines Overview", "Database Instance Types", "High Availability & Failover", "Backups & Snapshots"] 
+                        },
+                        { 
+                            name: "NoSQL Databases", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["DynamoDB Core Concepts", "Partition & Sort Keys", "Secondary Indexes", "Throughput & Capacity Modes", "Streams & Event Integration", "Backup & Restore Options"] 
+                        }
+                    ]
+                },
+                {
+                    title: "DNS & Traffic Routing",
+                    items: [
+                        { name: "Domain Name System Basics", type: "file", icon: "fa-globe", concepts: "DNS, Resolution" },
+                        { 
+                            name: "Route 53 Services", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["Hosted Zones Explained", "Routing Strategies", "Health Monitoring"] 
+                        }
+                    ]
+                },
+                {
+                    title: "Monitoring & Observability",
+                    items: [
+                        { name: "Monitoring AWS Resources", type: "file", icon: "fa-chart-line", concepts: "CloudWatch, Logs" },
+                        { 
+                            name: "CloudWatch Capabilities", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["Metrics & Alarms", "Log Collection & Analysis", "Event-Based Automation"] 
+                        }
+                    ]
+                },
+                {
+                    title: "Content Delivery & Caching",
+                    items: [
+                        { name: "Global Content Delivery Concepts", type: "file", icon: "fa-truck-fast", concepts: "CDN, Edge" },
+                        { 
+                            name: "CloudFront Essentials", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["Distributions Explained", "Cache Policies", "Cache Invalidation"] 
+                        },
+                        { name: "In-Memory Caching Basics", type: "file", icon: "fa-memory", concepts: "Latency, Speed" },
+                        { 
+                            name: "ElastiCache", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["Redis vs Memcached", "Performance Use Cases"] 
+                        }
+                    ]
+                },
+                {
+                    title: "Messaging & Email",
+                    items: [
+                        { name: "Email Services in AWS", type: "file", icon: "fa-envelope", concepts: "SES, SMTP" },
+                        { 
+                            name: "Simple Email Service", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["Sending Limits & Sandbox Mode", "Domain & Identity Verification", "DKIM Configuration", "Reputation Management"] 
+                        }
+                    ]
+                },
+                {
+                    title: "Load Balancing & Scaling",
+                    items: [
+                        { name: "Scaling Applications in AWS", type: "file", icon: "fa-scale-balanced", concepts: "Auto Scaling, ELB" },
+                        { 
+                            name: "Auto Scaling", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["Machine Images (AMIs)", "Launch Templates", "Scaling Policies", "Load Balancer Types"] 
+                        }
+                    ]
+                },
+                {
+                    title: "Serverless Architecture",
+                    items: [
+                        { name: "Serverless Computing Overview", type: "file", icon: "fa-bolt", concepts: "FaaS, NoOps" },
+                        { 
+                            name: "AWS Lambda", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["Creating & Running Functions", "Runtime Environments", "Layers & Reusability", "Versioning & Aliases", "Event Triggers & Scheduling", "Cold Starts & Limits", "API Gateway Integration", "Edge Execution with Lambda"] 
+                        }
+                    ]
+                },
+                {
+                    title: "Containers & Orchestration",
+                    items: [
+                        { name: "Container Basics", type: "file", icon: "fa-docker", concepts: "Docker, Images" },
+                        { 
+                            name: "Elastic Container Service", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["Clusters & Agents", "Task Definitions", "Services & Scaling", "Serverless Containers (Fargate)"] 
+                        },
+                        { 
+                            name: "Kubernetes on AWS", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["EKS Architecture", "Cluster Networking", "Worker Nodes & Scaling"] 
+                        }
+                    ]
+                },
+                {
+                    title: "Image & Artifact Management",
+                    items: [
+                        { name: "Container Image Concepts", type: "file", icon: "fa-box-open", concepts: "Registry, ECR" },
+                        { 
+                            name: "Elastic Container Registry", 
+                            type: "folder", 
+                            icon: "fa-folder", 
+                            children: ["Image Repositories", "Security Scanning", "Access Permissions"] 
+                        }
+                    ]
+                },
+                {
+                    title: "Advanced Topics",
+                    items: [
+                        { name: "Resource Limits & Quotas", type: "file", icon: "fa-gauge-high", concepts: "Throttling, Limits" },
+                        { name: "Cost Optimization Strategies", type: "file", icon: "fa-piggy-bank", concepts: "Savings Plans, Spot" },
+                        { name: "Designing Highly Available Systems", type: "file", icon: "fa-building-shield", concepts: "Resilience, Multi-AZ" },
+                        { name: "AWS Security Best Practices", type: "file", icon: "fa-shield-cat", concepts: "WAF, Shield" },
+                        { name: "Production Architecture Patterns", type: "file", icon: "fa-sitemap", concepts: "Reference Arch" }
+                    ]
+                }
+            ];
+
+            let awsTableContent = '';
+            let awsIndex = 1;
+            let totalAwsItems = 0;
+
+            // Helper to generate row (Reused from previous context, defined inside DOMContentLoaded)
+            const createRowHtml = (id, indexStr, name, icon, concept, views, dateMonth, dateYear, isFolder, parentId = null) => {
+                const typeIcon = isFolder ? 'fa-folder' : 'fa-file-lines'; 
+                const rowClass = parentId ? 'child-row' : '';
+                const style = parentId ? 'display: none;' : '';
+                const clickAttr = isFolder ? `onclick="toggleRow('${id}')"` : '';
+                const folderIconColor = isFolder ? '#fbbf24' : 'rgba(255,255,255,0.7)'; 
+                
+                // Logic for non-folder rows to show concepts
+                // For folders, we hide concept. For files, we show the passed concept.
+                // FIX: Ensure concepts are not empty strings to avoid empty tags
+                const conceptsList = concept.split(',');
+                let displayConcept = '';
+                
+                if (!isFolder && conceptsList.length > 0) {
+                    displayConcept = conceptsList.map(c => `<span class="tag">${c.trim()}</span>`).join('');
+                }
+                
+                // Views are now always '-'
+                const displayViews = '-';
+
+                // --- ICON PREFIX FIX ---
+                // Detect if the icon is likely a brand icon to use fa-brands, otherwise default to fa-solid
+                const isBrand = icon.includes('docker') || icon.includes('aws') || icon.includes('google') || icon.includes('github') || icon.includes('python') || icon.includes('node') || icon.includes('html') || icon.includes('linux') || icon.includes('golang') || icon.includes('laravel') || icon.includes('android');
+                const iconPrefix = isBrand ? 'fa-brands' : 'fa-solid';
+
+                return `
+                    <tr class="${rowClass}" data-id="${id}" data-parent-id="${parentId || ''}" style="${style}" ${clickAttr}>
+                        <td style="color: var(--text-muted)">${indexStr}</td>
+                        <td>
+                            <div class="col-service">
+                                <i class="${iconPrefix} ${icon}"></i>
+                                ${name}
+                            </div>
+                        </td>
+                        <td class="text-center"><i class="fa-solid ${typeIcon}" style="color: ${folderIconColor};"></i></td>
+                        <td>${displayConcept}</td>
+                        <td class="text-center">
+                            <button class="action-btn share" title="Share" onclick="event.stopPropagation();"><i data-lucide="share-2" width="14"></i></button>
+                        </td>
+                        <td class="text-center">${displayViews}</td>
+                        <td class="action-cell">
+                            <div class="action-container">
+                                <button class="action-btn like"><i data-lucide="thumbs-up" width="14"></i></button>
+                                <button class="action-btn dislike"><i data-lucide="thumbs-down" width="14"></i></button>
+                            </div>
+                        </td>
+                        <td class="date-cell">
+                            <div class="date-month">${dateMonth}</div>
+                            <div class="date-year">${dateYear}</div>
+                        </td>
+                    </tr>
+                `;
+            };
+
+            awsData.forEach(section => {
+                // Section Header
+                // Updated colspan to 8 to account for new Share column
+                awsTableContent += `<tr class="section-header-row"><td colspan="8">${section.title}</td></tr>`;
+                
+                section.items.forEach(item => {
+                    const parentId = `aws-${awsIndex}`;
+                    const isFolder = item.type === 'folder';
+                    // Views are forced to '-' in helper, random calculation removed here
+                    
+                    // Generate random recent date
+                    const date = new Date();
+                    date.setDate(date.getDate() - Math.floor(Math.random() * 60));
+                    const month = date.toLocaleString('default', { month: 'short' }).toUpperCase();
+                    const year = date.getFullYear();
+
+                    awsTableContent += createRowHtml(
+                        parentId, 
+                        awsIndex.toString().padStart(2, '0'), 
+                        item.name, 
+                        item.icon || 'fa-file', 
+                        item.concepts || "General, AWS", // Use specific concepts or fallback
+                        "-", // Views
+                        month, 
+                        year, 
+                        isFolder, 
+                        null
+                    );
+                    
+                    if(isFolder && item.children) {
+                        item.children.forEach((childName, cIdx) => {
+                            const childId = `${parentId}-c-${cIdx}`;
+                            // Generate sub-ID: e.g., 38.1, 38.2
+                            const subId = `${awsIndex}.${cIdx + 1}`;
+                            
+                            // Use Smart Icon Detector
+                            const subIcon = getRelevantIcon(childName, item.name);
+
+                            awsTableContent += createRowHtml(
+                                childId, 
+                                subId, 
+                                childName, 
+                                subIcon, 
+                                "Detail, Subtopic", 
+                                "-", 
+                                month, 
+                                year, 
+                                false, 
+                                parentId
+                            );
+                            totalAwsItems++; // INCREMENT FOR CHILD ROW
+                        });
+                    }
+                    awsIndex++;
+                    totalAwsItems++; // INCREMENT FOR PARENT ROW
+                });
+            });
+
+            awsTableBody.innerHTML = awsTableContent;
+
+            // --- SQL POPULATION (Existing) ---
+            const sqlTableBody = document.querySelector('#view-sql tbody');
+            const sqlData = [
+                {
+                    title: "Getting Started with SQL",
+                    items: [
+                        { name: "What is a Database", type: "file", icon: "fa-database" },
+                        { name: "What is SQL", type: "file", icon: "fa-code" },
+                        { name: "Relational Databases Explained", type: "file", icon: "fa-sitemap" },
+                        { name: "SQL vs NoSQL", type: "file", icon: "fa-scale-balanced" },
+                        { name: "Learn the Basics", type: "folder", icon: "fa-folder", children: ["RDBMS Benefits & Limitations", "OLTP vs OLAP", "Popular SQL Databases"] }
+                    ]
+                },
+                {
+                    title: "Writing Queries",
+                    items: [
+                        { name: "SELECT Statement", type: "file", icon: "fa-magnifying-glass" },
+                        { name: "INSERT Statement", type: "file", icon: "fa-plus" },
+                        { name: "UPDATE Statement", type: "file", icon: "fa-pen" },
+                        { name: "DELETE Statement", type: "file", icon: "fa-trash" },
+                        { name: "DISTINCT Keyword", type: "file", icon: "fa-filter" },
+                        { name: "Basic SQL Syntax", type: "folder", icon: "fa-folder", children: ["Aliases (AS)", "LIMIT / OFFSET / FETCH", "Comments in SQL"] }
+                    ]
+                },
+                {
+                    title: "Filtering Data",
+                    items: [
+                        { name: "WHERE Clause", type: "file", icon: "fa-filter" },
+                        { name: "ORDER BY Clause", type: "file", icon: "fa-arrow-down-z-a" },
+                        { name: "BETWEEN Operator", type: "file", icon: "fa-arrows-left-right" },
+                        { name: "IN Operator", type: "file", icon: "fa-list-check" },
+                        { name: "LIKE & Wildcards", type: "file", icon: "fa-asterisk" },
+                        { name: "Operators & Conditions", type: "folder", icon: "fa-folder", children: ["Comparison Operators", "Logical Operators (AND / OR / NOT)"] }
+                    ]
+                },
+                {
+                    title: "Aggregation & Grouping",
+                    items: [
+                        { name: "COUNT(), SUM(), AVG()", type: "file", icon: "fa-calculator" },
+                        { name: "GROUP BY Clause", type: "file", icon: "fa-layer-group" },
+                        { name: "HAVING Clause", type: "file", icon: "fa-filter-circle-dollar" },
+                        { name: "Aggregate Queries", type: "folder", icon: "fa-folder", children: ["MIN() and MAX()", "Grouped Calculations", "Filtering Aggregates"] }
+                    ]
+                },
+                {
+                    title: "Creating & Managing Tables",
+                    items: [
+                        { name: "CREATE TABLE", type: "file", icon: "fa-table" },
+                        { name: "ALTER TABLE", type: "file", icon: "fa-pen-to-square" },
+                        { name: "DROP TABLE", type: "file", icon: "fa-trash-can" },
+                        { name: "TRUNCATE TABLE", type: "file", icon: "fa-eraser" },
+                        { name: "Data Definition Language (DDL)", type: "folder", icon: "fa-folder", children: ["CREATE DATABASE", "DROP DATABASE", "Table Naming Best Practices"] }
+                    ]
+                },
+                {
+                    title: "Data Integrity & Constraints",
+                    items: [
+                        { name: "PRIMARY KEY", type: "file", icon: "fa-key" },
+                        { name: "FOREIGN KEY", type: "file", icon: "fa-link" },
+                        { name: "UNIQUE Constraint", type: "file", icon: "fa-fingerprint" },
+                        { name: "NOT NULL Constraint", type: "file", icon: "fa-ban" },
+                        { name: "CHECK Constraint", type: "file", icon: "fa-check-double" },
+                        { name: "DEFAULT Constraint", type: "file", icon: "fa-tag" },
+                        { name: "Data Constraints", type: "folder", icon: "fa-folder", children: ["Composite Keys", "Cascading Actions"] }
+                    ]
+                },
+                {
+                    title: "Joins & Relationships",
+                    items: [
+                        { name: "INNER JOIN", type: "file", icon: "fa-handshake" },
+                        { name: "LEFT JOIN", type: "file", icon: "fa-arrow-left" },
+                        { name: "RIGHT JOIN", type: "file", icon: "fa-arrow-right" },
+                        { name: "FULL OUTER JOIN", type: "file", icon: "fa-arrows-left-right-to-line" },
+                        { name: "JOIN Queries", type: "folder", icon: "fa-folder", children: ["Self Join", "Cross Join", "Join Performance Tips"] }
+                    ]
+                },
+                {
+                    title: "Subqueries & Nested Logic",
+                    items: [
+                        { name: "Subquery Basics", type: "file", icon: "fa-diagram-project" },
+                        { name: "Nested Subqueries", type: "file", icon: "fa-indent" },
+                        { name: "Subqueries", type: "folder", icon: "fa-folder", children: ["Scalar Subqueries", "Correlated Subqueries", "EXISTS vs IN"] }
+                    ]
+                },
+                {
+                    title: "Built-in Functions",
+                    items: [
+                        { name: "CONCAT() and LENGTH()", type: "file", icon: "fa-font" },
+                        { name: "SUBSTRING() and REPLACE()", type: "file", icon: "fa-scissors" },
+                        { name: "UPPER() and LOWER()", type: "file", icon: "fa-text-height" },
+                        { name: "String Functions", type: "folder", icon: "fa-folder", children: ["Pattern Matching", "String Formatting Tips"] },
+                        { name: "FLOOR(), CEILING(), ROUND()", type: "file", icon: "fa-calculator" },
+                        { name: "ABS() and MOD()", type: "file", icon: "fa-percent" },
+                        { name: "Numeric Functions", type: "folder", icon: "fa-folder", children: ["Numeric Edge Cases"] }
+                    ]
+                },
+                {
+                    title: "Date & Time Handling",
+                    items: [
+                        { name: "DATE and TIME", type: "file", icon: "fa-calendar" },
+                        { name: "TIMESTAMP Explained", type: "file", icon: "fa-clock" },
+                        { name: "DATEADD Function", type: "file", icon: "fa-plus-minus" },
+                        { name: "DATEPART Function", type: "file", icon: "fa-puzzle-piece" },
+                        { name: "Date & Time Functions", type: "folder", icon: "fa-folder", children: ["Time Zones in SQL", "Date Arithmetic Use Cases"] }
+                    ]
+                },
+                {
+                    title: "Views & Virtual Tables",
+                    items: [
+                        { name: "What is a View", type: "file", icon: "fa-eye" },
+                        { name: "Creating Views", type: "file", icon: "fa-plus-square" },
+                        { name: "Modifying Views", type: "file", icon: "fa-pen-to-square" },
+                        { name: "Dropping Views", type: "file", icon: "fa-trash-can" },
+                        { name: "Views", type: "folder", icon: "fa-folder", children: ["When to Use Views"] }
+                    ]
+                },
+                {
+                    title: "Indexes & Performance",
+                    items: [
+                        { name: "What is an Index", type: "file", icon: "fa-bolt" },
+                        { name: "Managing Indexes", type: "file", icon: "fa-list-ol" },
+                        { name: "Query Optimization Basics", type: "file", icon: "fa-gauge-high" },
+                        { name: "Indexes", type: "folder", icon: "fa-folder", children: ["B-Tree vs Hash Indexes", "Index Trade-offs"] }
+                    ]
+                },
+                {
+                    title: "Transactions & Reliability",
+                    items: [
+                        { name: "What is a Transaction", type: "file", icon: "fa-money-bill-transfer" },
+                        { name: "ACID Properties", type: "file", icon: "fa-shield-halved" },
+                        { name: "BEGIN / COMMIT / ROLLBACK", type: "file", icon: "fa-rotate-left" },
+                        { name: "SAVEPOINT", type: "file", icon: "fa-floppy-disk" },
+                        { name: "Transactions", type: "folder", icon: "fa-folder", children: ["Transaction Isolation Levels", "Deadlocks Explained"] }
+                    ]
+                },
+                {
+                    title: "Security & Access Control",
+                    items: [
+                        { name: "GRANT and REVOKE", type: "file", icon: "fa-user-lock" },
+                        { name: "SQL Injection Basics", type: "file", icon: "fa-bug" },
+                        { name: "Data Integrity & Security", type: "folder", icon: "fa-folder", children: ["DB Security Best Practices", "Role-Based Access Control"] }
+                    ]
+                },
+                {
+                    title: "Advanced SQL",
+                    items: [
+                        { name: "CASE Statement", type: "file", icon: "fa-code-branch" },
+                        { name: "COALESCE and NULLIF", type: "file", icon: "fa-filter" },
+                        { name: "Advanced SQL", type: "folder", icon: "fa-folder", children: ["Window Functions", "rank(), dense_rank(), row_number()", "lead() and lag()", "Common Table Expressions (CTEs)", "Recursive Queries", "Pivot & Unpivot", "Dynamic SQL"] }
+                    ]
+                },
+                {
+                    title: "Stored Logic & Optimization",
+                    items: [
+                        { name: "Stored Procedures Overview", type: "file", icon: "fa-box" },
+                        { name: "User-Defined Functions", type: "file", icon: "fa-code" },
+                        { name: "Stored Procedures & Functions", type: "folder", icon: "fa-folder", children: ["Procedure Parameters", "Error Handling in Procedures"] },
+                        { name: "Performance Optimization Basics", type: "file", icon: "fa-gauge" },
+                        { name: "Performance Optimization", type: "folder", icon: "fa-folder", children: ["Query Analysis Techniques", "Using Indexes Effectively", "Optimizing Joins", "Reducing Subqueries", "Execution Plans Explained"] }
+                    ]
+                }
+            ];
+
+            let sqlHtml = '';
+            let sqlIndex = 1;
+
+            sqlData.forEach(section => {
+                // Updated colspan to 8
+                sqlHtml += `<tr class="section-header-row"><td colspan="8">${section.title}</td></tr>`;
+                
+                section.items.forEach(item => {
+                    const parentId = `sql-${sqlIndex}`;
+                    const isFolder = item.type === 'folder';
+                    const date = new Date();
+                    date.setDate(date.getDate() - Math.floor(Math.random() * 300));
+                    const month = date.toLocaleString('default', { month: 'short' }).toUpperCase();
+                    const year = date.getFullYear();
+
+                    sqlHtml += createRowHtml(parentId, sqlIndex.toString().padStart(2, '0'), item.name, item.icon, "SQL, Concept", "-", month, year, isFolder, null);
+                    
+                    if(isFolder && item.children) {
+                        item.children.forEach((childName, cIdx) => {
+                            const childId = `${parentId}-c-${cIdx}`;
+                            // Generate sub-ID for SQL: e.g., 10.1
+                            const subId = `${sqlIndex}.${cIdx + 1}`;
+                            
+                            // Use Smart Icon Detector for SQL too
+                            const subIcon = getRelevantIcon(childName, item.name);
+
+                            sqlHtml += createRowHtml(childId, subId, childName, subIcon, "Detail, Sub", "-", month, year, false, parentId);
+                        });
+                    }
+                    sqlIndex++;
+                });
+            });
+            sqlTableBody.innerHTML = sqlHtml;
+
+            if(footerCounter) {
+                // Set initial count for the default active view (AWS)
+                // Use the calculated totalAwsItems from the loop above
+                footerCounter.textContent = `Course Contents: ${totalAwsItems}`;
+            }
+            
+            lucide.createIcons();
+        });
+
+        // Global function to toggle folder rows
+        window.toggleRow = function(rowId) {
+            const childRows = document.querySelectorAll(`tr[data-parent-id="${rowId}"]`);
+            const parentRow = document.querySelector(`tr[data-id="${rowId}"]`);
+            const typeIcon = parentRow.querySelector('td:nth-child(3) i'); 
+
+            const isExpanded = childRows[0] && childRows[0].style.display !== 'none';
+
+            childRows.forEach(row => {
+                row.style.display = isExpanded ? 'none' : 'table-row';
+            });
+
+            if (isExpanded) {
+                typeIcon.classList.remove('fa-folder-open');
+                typeIcon.classList.add('fa-folder');
+            } else {
+                typeIcon.classList.remove('fa-folder');
+                typeIcon.classList.add('fa-folder-open');
+            }
+        };
+    </script>
+</body>
+</html>
